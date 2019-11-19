@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+       <t t-extend="GraphView.buttons">
+           <t t-jquery="button.fa-pie-chart" t-operation="append">
+                 <button class="btn btn-secondary fa fa-barhorizontal-chart o_graph_button" title="barhorizontal Chart" aria-label="Pie Chart" data-mode="barhorizontal"/>
+            </t>
+        </t>
+
+
+</templates>
