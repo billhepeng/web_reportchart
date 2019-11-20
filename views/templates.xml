@@ -9,7 +9,7 @@
             </xpath>
         </template>
 
-
+        <!--增加新水平柱状图-->
         <template id="assets_backend" name="graph_view" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
                 <link href="/web_reportchart/static/src/css/web_reportchart.css" rel="stylesheet" type="text/css"/>
