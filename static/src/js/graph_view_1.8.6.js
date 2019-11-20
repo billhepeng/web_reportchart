@@ -11,7 +11,7 @@ odoo.define('web.GraphView_1.8.6', function (require) {
     GraphView.include({
         jsLibs: [
             '/web/static/lib/nvd3/d3.v3.js',
-            '/web_reportchart/static/src/js/nv.d3.js',
+            '/web_reportchart/static/libs/nvd3/nv.d3.js',
             '/web/static/src/js/libs/nvd3.js'
         ],
         init: function (parent, options) {

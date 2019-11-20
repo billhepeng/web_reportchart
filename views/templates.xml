@@ -5,7 +5,7 @@
         <!--增加新有nvd3库-->
         <template id="js_tests_assets" inherit_id="web.js_tests_assets">
             <xpath expr="//script[@src='/web/static/lib/nvd3/nv.d3.js']" position="replace">
-                <script type="text/javascript" src="/web_reportchart/static/src/js/nv.d3.js"/>
+                <script type="text/javascript" src="/web_reportchart/static/libs/nvd3/nv.d3.js"/>
             </xpath>
         </template>
 
