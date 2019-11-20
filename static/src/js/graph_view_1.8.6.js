@@ -12,7 +12,7 @@ odoo.define('web.GraphView_1.8.6', function (require) {
         jsLibs: [
             '/web/static/lib/nvd3/d3.v3.js',
             '/web_reportchart/static/libs/nvd3/nv.d3.js',
-            '/web/static/src/js/libs/nvd3.js'
+            '/web/static/src/js/lib/nvd3.js'
         ],
         init: function (parent, options) {
             this._super.apply(this, arguments);
