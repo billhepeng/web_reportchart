@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "web reportchat",
+    'name': "web reportchart",
 
     'summary': """
         报表
