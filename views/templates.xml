@@ -6,6 +6,7 @@
         <template id="js_tests_assets" inherit_id="web.js_tests_assets">
             <xpath expr="//script[@src='/web/static/lib/nvd3/nv.d3.js']" position="replace">
                 <script type="text/javascript" src="/web_reportchart/static/lib/nvd3/nv.d3.js"/>
+                <script type="text/javascript" src="/web_reportchart/static/lib/echart/echarts.js"/>
             </xpath>
         </template>
 
@@ -15,6 +16,7 @@
                 <link href="/web_reportchart/static/src/css/web_reportchart.css" rel="stylesheet" type="text/css"/>
                 <script type="text/javascript" src="/web_reportchart/static/src/js/graph_view_1.8.6.js"></script>
                 <script type="text/javascript" src="/web_reportchart/static/src/js/graph_renderer1.8.6.js"></script>
+                <script type="text/javascript" src="/web_reportchart/static/src/js/graph_controller1.8.6.js"></script>
             </xpath>
         </template>
 

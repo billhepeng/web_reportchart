@@ -11,7 +11,8 @@ odoo.define('web.GraphRenderer_1.8.6', function (require) {
 
     var MAX_LEGEND_LENGTH = 25 * (Math.max(1, config.device.size_class));
     var SPLIT_THRESHOLD = config.device.isMobile ? Infinity : 20;
-    var CHART_TYPES = ['pie', 'bar', 'line', 'barhorizontal'];
+    var CHART_TYPES = ['pie', 'bar', 'line', 'barhorizontal', 'echartbar', 'echartline', 'echartpie'
+    ,'echart1','echart2','echart3','echart4','echart5','echart6','echart7','echart8','echart9'];
 
 
     var GraphRenderer = require('web.GraphRenderer');
@@ -35,6 +36,10 @@ odoo.define('web.GraphRenderer_1.8.6', function (require) {
         _render: function () {
             if (this.to_remove) {
                 nv.utils.offWindowResize(this.to_remove);
+            }
+            var user_mode = this.state.mode;
+            if (user_mode.indexOf('echart')>-1){ //如果是自己定义图表
+                //   CHART_TYPES.push(user_mode);
             }
             if (!_.contains(CHART_TYPES, this.state.mode)) {
                 this.$el.empty();
@@ -144,7 +149,7 @@ odoo.define('web.GraphRenderer_1.8.6', function (require) {
 
             var chart = nv.models.multiBarHorizontalChart();
             chart.options({
-                margin: {left: 80, bottom: 100, top: 80, right: 0},
+                margin: {left: 80, bottom: 100, top: 80, right: 60},
                 delay: 100,
                 transition: 10,
                 controlLabels: {
@@ -169,6 +174,264 @@ odoo.define('web.GraphRenderer_1.8.6', function (require) {
 
             chart(svg);
             return chart;
+        },
+        // echart 柱状图
+        _renderEchartbarChart: function () {
+            var self = this;
+            var data = [];
+            var values;
+            var measure = this.state.fields[this.state.measure].string;
+            this.state.data.forEach(self._sanitizeLabel);
+            if (this.state.groupedBy.length) {
+                var xlabels = [],
+                    series = [],
+                    label, serie, value;
+                values = {};
+                for (var i = 0; i < this.state.data.length; i++) {
+                    label = this.state.data[i].labels[0];
+                    serie = this.state.data[i].labels[1];
+                    value = this.state.data[i].value;
+                    if ((!xlabels.length) || (xlabels[xlabels.length - 1] !== label)) {
+                        xlabels.push(label);
+                    }
+                    series.push(this.state.data[i].labels[1]);
+                    if (!(serie in values)) {
+                        values[serie] = {};
+                    }
+                    values[serie][label] = this.state.data[i].value;
+                }
+                series = _.uniq(series);
+                data = [];
+                var current_serie, j;
+                for (i = 0; i < series.length; i++) {
+                    current_serie = {
+                        data: [],
+                        type: 'bar',
+                        name: series[i]
+                    };
+                    for (j = 0; j < xlabels.length; j++) {
+                        current_serie.data.push(values[series[i]][xlabels[j]] || 0);
+                    }
+                    data.push(current_serie);
+                }
+            }
+            if (this.state.groupedBy.length <= 1) {
+                data[0].values = _.filter(data[0].values, function (elem, index) {
+                    return self.state.data[index].count > 0;
+                });
+            }
+            var $svgContainer = $('<div/>', {class: 'o_graph_svg_container'});
+            this.$el.append($svgContainer);
+            // 使用刚指定的配置项和数据显示图表。jquery 转dom  $svgContainer[0]
+            echarts.init($svgContainer[0]).setOption({
+                title: {
+                    text: measure,
+                    subtext: '',
+                    textAlign: 'auto',
+                    right: 20
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: series
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    boundaryGap: [0, 0.01]
+                },
+                yAxis: {
+                    type: 'category',
+                    data: xlabels
+                },
+                series: data
+            });
+            return null;
+        },
+        _renderEchartpieChart: function (stateData) {
+            var self = this;
+            var data = [];
+            var legenddata = [];
+            var all_negative = true;
+            var some_negative = false;
+            var all_zero = true;
+            var measure = this.state.fields[this.state.measure].string;
+            // undefined label value becomes a string 'Undefined' translated
+            stateData.forEach(self._sanitizeLabel);
+
+            stateData.forEach(function (datapt) {
+                all_negative = all_negative && (datapt.value < 0);
+                some_negative = some_negative || (datapt.value < 0);
+                all_zero = all_zero && (datapt.value === 0);
+            });
+            if (some_negative && !all_negative) {
+                this.$el.append(qweb.render('GraphView.error', {
+                    title: _t("Invalid data"),
+                    description: _t("Pie chart cannot mix positive and negative numbers. " +
+                        "Try to change your domain to only display positive results"),
+                }));
+                return;
+            }
+            if (all_zero) {
+                if (this.isEmbedded || this.isComparison) {
+                    // add fake data to display an empty pie chart
+                    data = [{
+                        name: "No data",
+                        value: 1
+                    }];
+                } else {
+                    this.$el.append(qweb.render('GraphView.error', {
+                        title: _t("Invalid data"),
+                        description: _t("Pie chart cannot display all zero numbers.. " +
+                            "Try to change your domain to display positive results"),
+                    }));
+                    return;
+                }
+            } else {
+                if (this.state.groupedBy.length) {
+                    data = stateData.map(function (datapt) {
+                        return {name: datapt.labels.join("/"), value: datapt.value};
+                    });
+                    legenddata = stateData.map(function (datapt) {
+                        return {name: datapt.labels.join("/")};
+                    });
+                }
+
+                // We only keep groups where count > 0
+                data = _.filter(data, function (elem, index) {
+                    return stateData[index].count > 0;
+                });
+            }
+
+            var $svgContainer = $('<div/>', {class: 'o_graph_svg_container'});
+            this.$el.append($svgContainer);
+            echarts.init($svgContainer[0]).setOption({
+                title: {
+                    text: '',
+                    subtext: measure,
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    data: legenddata
+                },
+                series: [
+                    {
+                        name: measure,
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['50%', '60%'],
+                        data: data,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            });
+            return null;
+        },
+        _renderEchartlineChart: function () {
+            var self = this;
+
+            // Remove Undefined of first GroupBy
+            var graphData = _.filter(this.state.data, function (elem) {
+                return elem.labels[0] !== undefined && elem.labels[0] !== _t("Undefined");
+            });
+
+            // undefined label value becomes a string 'Undefined' translated
+            this.state.data.forEach(self._sanitizeLabel);
+
+            var data = [];
+            var ticksLabels = [];
+            var measure = this.state.fields[this.state.measure].string;
+            var values;
+
+            if (this.state.groupedBy.length) {
+                  var xlabels = [],
+                    series = [],
+                    label, serie, value;
+                values = {};
+                for (var i = 0; i < this.state.data.length; i++) {
+                    label = this.state.data[i].labels[0];
+                    serie = this.state.data[i].labels[1];
+                    value = this.state.data[i].value;
+                    if ((!xlabels.length) || (xlabels[xlabels.length - 1] !== label)) {
+                        xlabels.push(label);
+                    }
+                    series.push(this.state.data[i].labels[1]);
+                    if (!(serie in values)) {
+                        values[serie] = {};
+                    }
+                    values[serie][label] = this.state.data[i].value;
+                }
+                series = _.uniq(series);
+                data = [];
+                var current_serie, j;
+                for (i = 0; i < series.length; i++) {
+                    current_serie = {
+                        data: [],
+                        type: 'line',
+                        name: series[i]
+                    };
+                    for (j = 0; j < xlabels.length; j++) {
+                        current_serie.data.push(values[series[i]][xlabels[j]] || 0);
+                    }
+                    data.push(current_serie);
+                }
+            }
+
+            var $svgContainer = $('<div/>', {class: 'o_graph_svg_container'});
+            this.$el.append($svgContainer);
+            echarts.init($svgContainer[0]).setOption({
+                title: {
+                    text: measure
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: series
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data:xlabels
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series:  data
+            });
+            return null;
         },
 
 
