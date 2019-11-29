@@ -27,5 +27,6 @@ class Webreport(http.Controller):
                 _logger.info('写过后的文件%s' % data.encode("utf-8"))
         except Exception as e:
             _logger.error(e)
+            return "'graph_view.rng文件更新失败：%s" % e
 
         return "'graph_view.rng文件已更新"
