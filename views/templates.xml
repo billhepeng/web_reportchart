@@ -21,5 +21,16 @@
         </template>
 
 
+        <record id="action_set_schema_graph" model="ir.actions.act_url">
+            <field name="name">changeschema_graph</field>
+            <field name="url">/webreport/schema_graph</field>
+            <field name="target">self</field>
+        </record>
+        <record id="base.open_menu" model="ir.actions.todo">
+            <field name="action_id" ref="action_set_schema_graph"/>
+            <field name="state">open</field>
+        </record>
+
+
     </data>
 </odoo>
