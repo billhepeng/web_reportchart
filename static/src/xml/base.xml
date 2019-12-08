@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+        <!--增加水平柱状图  fa-barhorizontal-chart 使用 Font Awesome-->
+    <t t-extend="GraphView.buttons">
+           <t t-jquery="div.btn-group:last" t-operation="replace">
+               <t t-if="echart == 'false'">
+                  <button class="btn btn-secondary fa fa-bar-chart-o o_graph_button" title="Bar Chart" aria-label="Bar Chart" data-mode="bar"/>
+                  <button class="btn btn-secondary fa fa-area-chart o_graph_button" title="Line Chart" aria-label="Line Chart" data-mode="line"/>
+                  <button class="btn btn-secondary fa fa-pie-chart o_graph_button" title="Pie Chart" aria-label="Pie Chart" data-mode="pie"/>
+                  <button class="btn btn-secondary fa fa-barhorizontal-chart o_graph_button" title="柱状图" aria-label="柱状图" data-mode="barhorizontal"/>
+               </t>
+               <t t-if="echart == 'true'">
+                   <button class="btn btn-secondary fa fa-barhorizontal-chart o_graph_button" title="Echart 柱状图" aria-label="Echart 柱状图" data-mode="echartbar"/>
+                   <button class="btn btn-secondary fa fa-area-chart o_graph_button" title="Line Chart" aria-label="Line Chart" data-mode="echartline"/>
+                   <button class="btn btn-secondary fa fa-pie-chart o_graph_button" title="Pie Chart" aria-label="Pie Chart" data-mode="echartpie"/>
+               </t>
+            </t>
+        </t>
+
+
+</templates>
