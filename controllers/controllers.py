@@ -11,8 +11,9 @@ _logger = logging.getLogger(__name__)
 
 
 class Webreport(http.Controller):
-    @http.route('/webreport/schema_graph', type='http', auth='user')
-    def schema_graph(self):
+
+    @http.route('/webreport/schema_graph', type='http', auth='user', website=True,  methods=['GET', 'POST'])
+    def schema_graph(self, **kwargs):
         data = None
         try:
             with misc.file_open(os.path.join('web_reportchart', 'views', 'graph_view_echart.rng')) as f:
