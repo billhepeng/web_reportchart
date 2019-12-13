@@ -20,7 +20,7 @@
             </xpath>
         </template>
 
-
+        <!--当安装完后自动跳转到目录-->
         <record id="action_set_schema_graph" model="ir.actions.act_url">
             <field name="name">changeschema_graph</field>
             <field name="url">/webreport/schema_graph</field>
